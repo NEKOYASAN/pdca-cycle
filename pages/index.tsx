@@ -4,8 +4,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  IconButton,
   keyframes,
+  Spacer,
   Switch,
   Text,
 } from '@chakra-ui/react';
@@ -17,6 +17,8 @@ const Home: NextPage = () => {
   const [width, setWidth] = useState<number | null>(null);
   const [height, setHeight] = useState<number | null>(null);
   const [reverse, setReverse] = useState<boolean>(false);
+  const [manual, setManual] = useState<boolean>(false);
+  const [alpha, setAlpha] = useState<number | null>(0);
   useEffect(() => {
     const windowRefObserver = new ResizeObserver((entries) => {
       setWidth(entries[0].contentRect.width);
@@ -28,6 +30,15 @@ const Home: NextPage = () => {
       windowRefObserver.disconnect();
     };
   }, [windowRef]);
+  const deviceorientation = (data: DeviceOrientationEvent) => {
+    setAlpha(data.alpha);
+  };
+  useEffect(() => {
+    window.addEventListener('deviceorientation', deviceorientation);
+    return () => {
+      window.removeEventListener('deviceorientation', deviceorientation);
+    };
+  }, []);
   const rotate = keyframes`
     0%{ transform:rotate(0);}
     100%{ transform:rotate(360deg);
@@ -70,7 +81,9 @@ const Home: NextPage = () => {
           flexDirection={'column'}
           alignItems={'center'}
           justifyContent={'center'}
-          animation={`1s linear infinite ${reverse ? reverseRotate : rotate}`}
+          animation={manual ? undefined : `1s linear infinite ${reverse ? reverseRotate : rotate}`}
+          transition={'transform 2.78ms linear'}
+          transform={manual ? `rotate(${alpha}deg)` : undefined}
         >
           <Text
             fontWeight={900}
@@ -112,6 +125,17 @@ const Home: NextPage = () => {
           isChecked={reverse}
           onChange={(e) => {
             setReverse(e.target.checked);
+          }}
+        />
+        <Spacer />
+        <FormLabel htmlFor="manual" mb="0">
+          Manual?
+        </FormLabel>
+        <Switch
+          id="manual"
+          isChecked={manual}
+          onChange={(e) => {
+            setManual(e.target.checked);
           }}
         />
       </FormControl>
