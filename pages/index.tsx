@@ -168,17 +168,21 @@ const Home: NextPage = () => {
             Init DeviceSensor
           </Button>
         )}
-        <FormLabel htmlFor="manual" mb="0">
-          Manual?
-        </FormLabel>
-        <Switch
-          disabled={!alreadyRequest}
-          id="manual"
-          isChecked={manual}
-          onChange={(e) => {
-            setManual(e.target.checked);
-          }}
-        />
+        {alreadyRequest && (
+          <>
+            <FormLabel htmlFor="manual" mb="0">
+              Manual?
+            </FormLabel>
+            <Switch
+              disabled={!alreadyRequest}
+              id="manual"
+              isChecked={manual}
+              onChange={(e) => {
+                setManual(e.target.checked);
+              }}
+            />
+          </>
+        )}
       </FormControl>
     </Flex>
   );
