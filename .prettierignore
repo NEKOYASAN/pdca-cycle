@@ -1,0 +1,9 @@
+node_modules
+**/.next/**
+**/_next/**
+**/dist/**
+**/.husky/**
+**/.serverless/**
+**/.serverless_nextjs/**
+tsconfig.json
+next-env.d.ts
