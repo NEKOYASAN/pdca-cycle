@@ -1,6 +1,7 @@
 import type { NextPage } from 'next';
 import {
   Box,
+  Button,
   Flex,
   FormControl,
   FormLabel,
@@ -19,6 +20,20 @@ const Home: NextPage = () => {
   const [reverse, setReverse] = useState<boolean>(false);
   const [manual, setManual] = useState<boolean>(false);
   const [alpha, setAlpha] = useState<number | null>(0);
+  const [alreadyRequest, setAlreadyRequest] = useState<boolean>(false);
+  useEffect(() => {
+    if (!window.DeviceOrientationEvent) {
+      setAlreadyRequest(true);
+    }
+    if (
+      // @ts-ignore
+      !DeviceOrientationEvent.requestPermission ||
+      // @ts-ignore
+      typeof DeviceOrientationEvent.requestPermission != 'function'
+    ) {
+      setAlreadyRequest(true);
+    }
+  }, []);
   useEffect(() => {
     const windowRefObserver = new ResizeObserver((entries) => {
       setWidth(entries[0].contentRect.width);
@@ -33,12 +48,28 @@ const Home: NextPage = () => {
   const deviceorientation = (data: DeviceOrientationEvent) => {
     setAlpha(data.alpha);
   };
+  const requestDeviceSensor = () => {
+    // @ts-ignore
+    DeviceOrientationEvent.requestPermission()
+      .then(function (response: any) {
+        if (response === 'granted') {
+          setAlreadyRequest(true);
+        }
+      })
+      .catch(function (e: any) {
+        console.log(e);
+      });
+  };
   useEffect(() => {
-    window.addEventListener('deviceorientation', deviceorientation);
+    if (manual) {
+      window.addEventListener('deviceorientation', deviceorientation);
+    } else {
+      window.removeEventListener('deviceorientation', deviceorientation);
+    }
     return () => {
       window.removeEventListener('deviceorientation', deviceorientation);
     };
-  }, []);
+  }, [manual]);
   const rotate = keyframes`
     0%{ transform:rotate(0);}
     100%{ transform:rotate(360deg);
@@ -128,10 +159,20 @@ const Home: NextPage = () => {
           }}
         />
         <Spacer />
+        {!alreadyRequest && (
+          <Button
+            onClick={() => {
+              requestDeviceSensor();
+            }}
+          >
+            Init DeviceSensor
+          </Button>
+        )}
         <FormLabel htmlFor="manual" mb="0">
           Manual?
         </FormLabel>
         <Switch
+          disabled={!alreadyRequest}
           id="manual"
           isChecked={manual}
           onChange={(e) => {
