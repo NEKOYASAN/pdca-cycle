@@ -1,5 +1,14 @@
 import type { NextPage } from 'next';
-import { Box, Flex, keyframes, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  FormControl,
+  FormLabel,
+  IconButton,
+  keyframes,
+  Switch,
+  Text,
+} from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 
@@ -7,6 +16,7 @@ const Home: NextPage = () => {
   const windowRef = useRef(null);
   const [width, setWidth] = useState<number | null>(null);
   const [height, setHeight] = useState<number | null>(null);
+  const [reverse, setReverse] = useState<boolean>(false);
   useEffect(() => {
     const windowRefObserver = new ResizeObserver((entries) => {
       setWidth(entries[0].contentRect.width);
@@ -22,6 +32,10 @@ const Home: NextPage = () => {
     0%{ transform:rotate(0);}
     100%{ transform:rotate(360deg);
   `;
+  const reverseRotate = keyframes`
+    0%{ transform:rotate(0);}
+    100%{ transform:rotate(-360deg);
+  `;
   return (
     <Flex
       w={'100vw'}
@@ -33,6 +47,7 @@ const Home: NextPage = () => {
       ref={windowRef}
       justifyContent={'center'}
       alignItems={'center'}
+      position={'relative'}
     >
       <Head>
         <title>PDCA Cycle</title>
@@ -55,7 +70,7 @@ const Home: NextPage = () => {
           flexDirection={'column'}
           alignItems={'center'}
           justifyContent={'center'}
-          animation={`1s linear infinite ${rotate}`}
+          animation={`1s linear infinite ${reverse ? reverseRotate : rotate}`}
         >
           <Text
             fontWeight={900}
@@ -81,6 +96,25 @@ const Home: NextPage = () => {
           </Text>
         </Flex>
       ) : null}
+      <FormControl
+        display="flex"
+        position={'absolute'}
+        alignItems={'center'}
+        top={2}
+        left={0}
+        px={4}
+      >
+        <FormLabel htmlFor="reverse" mb="0">
+          Reverse?
+        </FormLabel>
+        <Switch
+          id="reverse"
+          isChecked={reverse}
+          onChange={(e) => {
+            setReverse(e.target.checked);
+          }}
+        />
+      </FormControl>
     </Flex>
   );
 };
